@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:formvalidator/src/bloc/provider.dart';
 
 import 'package:formvalidator/src/pages/home_page.dart';
-import 'package:formvalidator/src/pages/registro_page.dart';
+import 'package:formvalidator/src/pages/login_page.dart';
 
 import 'package:formvalidator/src/providers/usuario_provider.dart';
 
 import 'package:formvalidator/src/utils/utils.dart' as util;
 
-class LoginPage extends StatelessWidget {
+class RegistroPage extends StatelessWidget {
 
-  static final String route = "login";
+  static final String route = "registro";
 
   final usuarioProvider = UsuarioProvider();
 
@@ -126,7 +126,7 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Inicio de Sesión',
+                  'Crear cuenta',
                   style: TextStyle(
                     fontSize: 20.0,
                   ),
@@ -142,8 +142,8 @@ class LoginPage extends StatelessWidget {
           ),
         
           FlatButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, RegistroPage.route), 
-            child: Text('Crear nueva cuenta')
+            onPressed: () => Navigator.pushReplacementNamed(context, LoginPage.route), 
+            child: Text('¿Ya tienes cuenta? inicia sesion')
           ),
 
           SizedBox(height: 300.0,)
@@ -208,10 +208,10 @@ class LoginPage extends StatelessWidget {
       stream: bloc.formValidStream,
       builder: (context, snapshot) {
         return RaisedButton(
-          onPressed: (snapshot.hasData) ? () => _login(context, bloc) : null,
+          onPressed: (snapshot.hasData) ? () => _registro(context, bloc) : null,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 80.0, vertical: 15.0),
-            child: Text('Entrar'),
+            child: Text('Dar de alta'),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.0)
@@ -224,13 +224,14 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _login(BuildContext context, LoginBloc bloc) async {
-    Map info = await usuarioProvider.loginUsuario(bloc.email, bloc.password);
+  void _registro(BuildContext context, LoginBloc bloc) async {
+
+    Map info = await usuarioProvider.nuevoUsuario(bloc.email, bloc.password);
 
     if(info['ok']) {
       Navigator.of(context).pushReplacementNamed(HomePage.route);
     } else {
-      util.mostrarAlerta(context, 'Error login: ${info['mensaje']} ');
+      util.mostrarAlerta(context, 'Error al crear cuenta: ${info['mensaje']} ');
     }
   }
 

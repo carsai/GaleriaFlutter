@@ -32,6 +32,3 @@ class Provider extends InheritedWidget{
   }
 
 }
-
-class _internal {
-}
