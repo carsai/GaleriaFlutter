@@ -1,47 +1,42 @@
 import 'package:flutter/material.dart';
 
+import 'package:formvalidator/src/bloc/provider.dart';
+
 import 'package:formvalidator/src/models/producto_model.dart';
 
 import 'package:formvalidator/src/pages/productor_page.dart';
 
-import 'package:formvalidator/src/providers/productos_provider.dart';
-
-// TODO -> Cambiar a StatelessWidget
-class HomePage extends StatefulWidget {
-
-  static final String route = "home";
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final productosProvider = ProductosProvider();
+class HomePage extends StatelessWidget {
+  
+  static final route = "home";
 
   @override
   Widget build(BuildContext context) {
+
+    final productoBloc = Provider.productosBloc(context);
+    productoBloc.cargarProductos();
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
       ),
-      body: _crearListado(),
+      body: _crearListado(productoBloc),
       floatingActionButton: _crearBoton(context),
     );
   }
 
   Widget _crearBoton(BuildContext context) {
     return FloatingActionButton(
-      // TODO _> QUITAR THEN
-      onPressed: () => Navigator.of(context).pushNamed(ProductoPage.route).then((value) => setState((){})),
+      onPressed: () => Navigator.of(context).pushNamed(ProductoPage.route),
       backgroundColor: Theme.of(context).primaryColor,
       child: Icon(Icons.add),
     );
   }
 
-  Widget _crearListado() {
-    return FutureBuilder(
-      future: productosProvider.cargarProductos(),
+  Widget _crearListado(ProductosBloc productosBloc) {
+
+    return StreamBuilder(
+      stream: productosBloc.productoStream,
       builder: (context, AsyncSnapshot<List<ProductoModel>> snapshot) {
         if (snapshot.hasData) {
 
@@ -49,22 +44,22 @@ class _HomePageState extends State<HomePage> {
 
           return ListView.builder(
             itemCount: productos.length,
-            itemBuilder: (context, i) => _crearItems(context, productos[i]),
+            itemBuilder: (context, i) => _crearItems(context, productos[i], productosBloc),
           );
         } else {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
-      },
+      }
     );
   }
 
-  Widget _crearItems( BuildContext context, ProductoModel producto ) {
+  Widget _crearItems( BuildContext context, ProductoModel producto, ProductosBloc productosBloc ) {
     return Dismissible(
       key: UniqueKey(),
       direction: DismissDirection.startToEnd,
-      onDismissed: (direction) => productosProvider.borrarProducto(producto.id),
+      onDismissed: (direction) => productosBloc.eliminarProducto(producto.id),
       background: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.0),
         color: Colors.red,
@@ -91,11 +86,10 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: Text('${producto.titulo} - ${producto.valor}'),
               subtitle: Text(producto.id),
-              // TODO _> QUITAR THEN
               onTap: () => Navigator.pushNamed(
                 context, ProductoPage.route, 
                 arguments: producto
-              ).then((value) => setState((){})),
+              ),
             )
           ],
         ),

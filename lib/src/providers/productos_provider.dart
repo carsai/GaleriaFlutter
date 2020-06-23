@@ -30,9 +30,9 @@ class ProductosProvider {
 
   }
 
-  Future<bool> modificarproducto( ProductoModel producto ) async {
+  Future<bool> modificarProducto( ProductoModel producto ) async {
     
-    final url = '$_url/productos/${producto.id}.json';
+    final url = '$_url/productos/${producto.id}.json?auth=${_prefs.token}';
 
     final respuesta = await http.put(
       url,

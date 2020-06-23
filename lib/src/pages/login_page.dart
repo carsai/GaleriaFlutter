@@ -20,14 +20,14 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          _crerFondo(context),
+          _crearFondo(context),
           _loginForm(context),
         ],
       ),
     );
   }
 
-  Widget _crerFondo(BuildContext context) {
+  Widget _crearFondo(BuildContext context) {
 
     final size = MediaQuery.of(context).size;
 
@@ -233,5 +233,4 @@ class LoginPage extends StatelessWidget {
       util.mostrarAlerta(context, 'Error login: ${info['mensaje']} ');
     }
   }
-
 }

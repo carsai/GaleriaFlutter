@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:formvalidator/src/models/producto_model.dart';
+import 'package:formvalidator/src/bloc/provider.dart';
 
-import 'package:formvalidator/src/providers/productos_provider.dart';
+import 'package:formvalidator/src/models/producto_model.dart';
 
 import 'package:formvalidator/src/utils/utils.dart' as utils;
 
@@ -20,14 +21,15 @@ class _ProductoPageState extends State<ProductoPage> {
   final _formKey     = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  ProductosBloc productosBloc;
   ProductoModel _producto = ProductoModel();
   bool _guardando = false;
   PickedFile foto;
 
-  final _productoProvider = ProductosProvider();
-
   @override
   Widget build(BuildContext context) {
+
+    productosBloc = Provider.productosBloc(context);
 
     final productoData = ModalRoute.of(context).settings.arguments;
 
@@ -137,13 +139,13 @@ class _ProductoPageState extends State<ProductoPage> {
     setState(() => _guardando = true);
 
     if (foto != null) {
-      _producto.fotoURL = await _productoProvider.subirImage(foto);
+      _producto.fotoURL = await productosBloc.subirFoto(foto);
     }
 
     if (_producto.id == null) {
-      await _productoProvider.crearProducto(_producto);
+      productosBloc.agregarProducto(_producto);
     } else {
-      await _productoProvider.modificarproducto(_producto);
+      productosBloc.modificarProducto(_producto);
     }
 
     setState(() => _guardando = false);
@@ -175,11 +177,15 @@ class _ProductoPageState extends State<ProductoPage> {
                 fit: BoxFit.cover,
               );
     } else {
-      return Image(
-        image: AssetImage( foto?.path ?? 'assets/img/no-image.png'),
+
+      if (foto == null) return Image(image: AssetImage('assets/img/no-image.png'));
+      
+      return Image.file(
+        File(foto.path),
         height: 300.0,
         fit: BoxFit.cover,
       );
+      
     }
   }
 
